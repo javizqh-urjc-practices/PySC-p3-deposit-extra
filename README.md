@@ -12,6 +12,27 @@ Prueba a generar el plan con POPF y con OPTIC y comenta las diferencias.
 
 *[Respuesta]*
 
+Con POPF el planificador da segmentation fault al no estar el forall correctamente soportado:
+```bash
+Constructing lookup tables: [10%] [20%] [30%] [40%] [50%] [60%] [70%] [80%] [90%] [100%] [110%] [120%] [130%] [140%]
+[ros2run]: Segmentation fault
+```
+
+Mientras que con OPTIC el plan se genera de forma correcta:
+```bash
+0.000: (move walle table floor)  [10.000]
+10.001: (pick rotten_apple floor walle)  [2.000]
+12.002: (load rotten_apple walle)  [1.000]
+13.003: (pick newspaper floor walle)  [2.000]
+15.004: (load newspaper walle)  [1.000]
+16.005: (pick bottle floor walle)  [2.000]
+18.006: (load bottle walle)  [1.000]
+19.007: (move walle floor large-deposit)  [50.000]
+69.008: (unload rotten_apple walle)  [1.000]
+69.008: (unload newspaper walle)  [1.000]
+69.008: (unload bottle walle)  [1.000]
+```
+
 
 ## Ejercicio 3
 No nos terminamos de fiar de los planificadores, ya que a veces nos dan planes en los que el robot no termina de llenar su contenedor antes de volver al depósito.
@@ -22,6 +43,17 @@ Explica cómo has definido los requisitos para que se cumpla la restricción pro
 
 
 *[Respuesta]*
+
+Para que se cumpla la restricción lo primero que hay que hacer es que la acción move no funcione para la localización del deposito. Esto se consigue añadiendo a la condición la siguiente línea:
+```pddl
+(at start (not (= ?to Large-deposit)))
+```
+
+Luego se crea la nueva acción a la que se pone la condición contraria y se le añade la condición de tener todos los objetos cargados en el robot:
+```pddl
+(at start (forall (?it - item) (robot_store ?r ?it)))
+(at start (= ?to Large-deposit))
+```
 
 *Nota:* Esta acción tiene el objetivo de evitar que el robot vaya al depósito a descargar (`unload`) hasta que no haya recogido toda la basura. Si se te ocurre una solución alternativa, impleméntala y explica su funcionamiento.
 
