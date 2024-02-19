@@ -65,3 +65,34 @@ Luego se crea la nueva acción a la que se pone la condición contraria y se le 
 
 ## Ejercicio extra [*Opcional*]
 Implementa en [UPF](https://unified-planning.readthedocs.io/en/latest/) alguno de los dominios/problemas usados en las últimas 3 prácticas y compara los resultados.
+
+Es el ejercicio 1 de esta practica y los resultados son:
+
+- UPF con Aries:
+```pddl
+0.0: move(walle, table, floor) [10.0]
+10.1: pick(bottle, floor, walle) [2.0]
+12.2: load(bottle, walle) [1.0]
+13.3: pick(newspaper, floor, walle) [2.0]
+15.4: load(newspaper, walle) [1.0]
+16.5: pick(rotten_apple, floor, walle) [2.0]
+16.6: move(walle, floor, Large_deposit) [50.0]
+18.6: load(rotten_apple, walle) [1.0]
+66.7: unload(rotten_apple, walle) [1.0]
+66.8: unload(bottle, walle) [1.0]
+66.8: unload(newspaper, walle) [1.0]
+```
+- PDDL con Optic:
+```pddl
+0.000: (move walle table floor)  [10.000]
+10.001: (pick rotten_apple floor walle)  [2.000]
+12.002: (load rotten_apple walle)  [1.000]
+13.003: (pick newspaper floor walle)  [2.000]
+15.004: (load newspaper walle)  [1.000]
+16.005: (pick bottle floor walle)  [2.000]
+18.006: (load bottle walle)  [1.000]
+19.007: (move walle floor large-deposit)  [50.000]
+69.008: (unload rotten_apple walle)  [1.000]
+69.008: (unload newspaper walle)  [1.000]
+69.008: (unload bottle walle)  [1.000]
+```

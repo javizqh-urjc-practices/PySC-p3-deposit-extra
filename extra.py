@@ -30,12 +30,11 @@ r = move.parameter("r")
 fr = move.parameter("fr")
 to = move.parameter("to")
 
-# move.set_fixed_duration(30)
 move.set_fixed_duration(distance(fr, to))
 
 move.add_condition(StartTiming(), robot_at(r, fr))
 move.add_condition(ClosedTimeInterval(StartTiming(), EndTiming()), connected(fr, to))
-# move.add_condition(StartTiming(), to != Large_deposit)
+move.add_condition(StartTiming(), to != Large_deposit)
 
 move.add_effect(EndTiming(), robot_at(r, to), True)
 move.add_effect(StartTiming(), robot_at(r, fr), False)
@@ -86,7 +85,6 @@ load.add_condition(StartTiming(), robot_carry(r, it))
 load.add_condition(StartTiming(), GE(max_load(r), Plus(current_load(r), weight(it))))
 
 load.add_increase_effect(timing=EndTiming(), fluent=current_load(r), value=1)
-# load.add_increase_effect(current_load(r), weight(it))
 load.add_effect(EndTiming(), robot_store(r, it), True)
 load.add_effect(EndTiming(), gripper_free(r), True)
 load.add_effect(StartTiming(), robot_carry(r, it), False)
@@ -102,12 +100,11 @@ unload.set_fixed_duration(1)
 unload.add_condition(StartTiming(), robot_store(r, it))
 unload.add_condition(StartTiming(), robot_at(r, Large_deposit))
 
-unload.add_decrease_effect(EndTiming(), current_load(r), 1)
-# unload.add_decrease_effect(EndTiming(), current_load(r), weight(it))
+unload.add_decrease_effect(EndTiming(), current_load(r), weight(it))
 unload.add_effect(EndTiming(), in_trash(it), True)
 unload.add_effect(StartTiming(), robot_store(r, it), False)
 
-###########
+################################################################################
 # Declaring objects
 table = Object("table", Location)
 floor = Object("floor", Location)
@@ -119,18 +116,18 @@ walle = Object("walle", Robot)
 # Populating the problem with initial state and goals
 problem = Problem("deposit")
 
-problem.add_fluent(robot_at)
-problem.add_fluent(item_at)
-problem.add_fluent(gripper_free)
-problem.add_fluent(robot_carry)
-problem.add_fluent(robot_store)
-problem.add_fluent(in_trash)
-problem.add_fluent(connected)
+problem.add_fluent(robot_at, default_initial_value=False)
+problem.add_fluent(item_at, default_initial_value=False)
+problem.add_fluent(gripper_free, default_initial_value=False)
+problem.add_fluent(robot_carry, default_initial_value=False)
+problem.add_fluent(robot_store, default_initial_value=False)
+problem.add_fluent(in_trash, default_initial_value=False)
+problem.add_fluent(connected, default_initial_value=False)
 
-problem.add_fluent(distance)
-problem.add_fluent(weight)
-problem.add_fluent(max_load)
-problem.add_fluent(current_load)
+problem.add_fluent(distance, default_initial_value=0)
+problem.add_fluent(weight, default_initial_value=0)
+problem.add_fluent(max_load, default_initial_value=0)
+problem.add_fluent(current_load, default_initial_value=0)
 
 problem.add_action(move)
 problem.add_action(pick)
@@ -155,13 +152,10 @@ problem.set_initial_value(current_load(walle), 0)
 
 problem.set_initial_value(distance(floor, table), 10)
 problem.set_initial_value(distance(table, floor), 10)
-problem.set_initial_value(distance(floor, Large_deposit), 40)
-problem.set_initial_value(distance(Large_deposit, floor), 40)
-problem.set_initial_value(distance(table, Large_deposit), 50)
-problem.set_initial_value(distance(Large_deposit, table), 50)
-problem.set_initial_value(distance(floor, floor), 0)
-problem.set_initial_value(distance(table, table), 0)
-problem.set_initial_value(distance(Large_deposit, Large_deposit), 0)
+problem.set_initial_value(distance(floor, Large_deposit), 50)
+problem.set_initial_value(distance(Large_deposit, floor), 50)
+problem.set_initial_value(distance(table, Large_deposit), 40)
+problem.set_initial_value(distance(Large_deposit, table), 40)
 
 problem.set_initial_value(connected(floor, table), True)
 problem.set_initial_value(connected(table, floor), True)
@@ -169,43 +163,20 @@ problem.set_initial_value(connected(floor, Large_deposit), True)
 problem.set_initial_value(connected(Large_deposit, floor), True)
 problem.set_initial_value(connected(table, Large_deposit), True)
 problem.set_initial_value(connected(Large_deposit, table), True)
-problem.set_initial_value(connected(floor, floor), False)
-problem.set_initial_value(connected(table, table), False)
-problem.set_initial_value(connected(Large_deposit, Large_deposit), False)
 
 problem.set_initial_value(robot_at(walle, table), True)
-problem.set_initial_value(robot_at(walle, floor), False)
-problem.set_initial_value(robot_at(walle, Large_deposit), False)
-
-problem.set_initial_value(robot_carry(walle, bottle), False)
-problem.set_initial_value(robot_carry(walle, newspaper), False)
-problem.set_initial_value(robot_carry(walle, rotten_apple), False)
-
-problem.set_initial_value(robot_store(walle, bottle), False)
-problem.set_initial_value(robot_store(walle, newspaper), False)
-problem.set_initial_value(robot_store(walle, rotten_apple), False)
 
 problem.set_initial_value(gripper_free(walle), True)
 
 problem.set_initial_value(item_at(bottle, floor), True)
-problem.set_initial_value(item_at(bottle, table), False)
-problem.set_initial_value(item_at(bottle, Large_deposit), False)
 problem.set_initial_value(item_at(newspaper, floor), True)
-problem.set_initial_value(item_at(newspaper, table), False)
-problem.set_initial_value(item_at(newspaper, Large_deposit), False)
 problem.set_initial_value(item_at(rotten_apple, floor), True)
-problem.set_initial_value(item_at(rotten_apple, table), False)
-problem.set_initial_value(item_at(rotten_apple, Large_deposit), False)
-
-problem.set_initial_value(in_trash(bottle), False)
-problem.set_initial_value(in_trash(newspaper), False)
-problem.set_initial_value(in_trash(rotten_apple), False)
 
 problem.add_goal(in_trash(bottle))
 problem.add_goal(in_trash(newspaper))
 problem.add_goal(in_trash(rotten_apple))
 
-with OneshotPlanner(problem_kind=problem.kind) as planner:
+with OneshotPlanner(name='aries', problem_kind=problem.kind) as planner:
     result = planner.solve(problem)
     if result.status in unified_planning.engines.results.POSITIVE_OUTCOMES:
         print(f"{planner.name} found this plan: {result.plan}")
